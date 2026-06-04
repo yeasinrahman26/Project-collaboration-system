@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 
 exports.signup = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, profilePicture } = req.body;
 
     // Check if user exists
     const existingUser = await User.findOne({ email });
@@ -17,7 +17,9 @@ exports.signup = async (req, res) => {
       email,
       password,
       role: role || "TeamMember",
+      profilePicture, // URL from frontend
     });
+
     await user.save();
 
     // Generate token
@@ -35,6 +37,7 @@ exports.signup = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        profilePicture: user.profilePicture,
       },
     });
   } catch (error) {
@@ -70,8 +73,43 @@ exports.login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        profilePicture: user.profilePicture,
       },
     });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Update profile picture
+exports.updateProfilePicture = async (req, res) => {
+  try {
+    const { profilePictureUrl } = req.body;
+
+    if (!profilePictureUrl) {
+      return res.status(400).json({ message: "No image URL provided" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { profilePicture: profilePictureUrl },
+      { new: true },
+    ).select("-password");
+
+    res.json({
+      message: "Profile picture updated",
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Get user profile
+exports.getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    res.json(user);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

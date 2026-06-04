@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const activitySchema = new mongoose.Schema({
-  action: String, // e.g., "created", "updated", "assigned"
+  action: String,
   description: String,
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   projectId: { type: mongoose.Schema.Types.ObjectId, ref: "Project" },

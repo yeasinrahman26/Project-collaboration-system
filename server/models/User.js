@@ -10,14 +10,15 @@ const userSchema = new mongoose.Schema({
     enum: ["Admin", "ProjectManager", "TeamMember"],
     default: "TeamMember",
   },
+  profilePicture: String, // ImageBB URL from frontend
   createdAt: { type: Date, default: Date.now },
 });
 
 // Hash password before saving
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 10);
-  next();
+ ;
 });
 
 // Compare password method

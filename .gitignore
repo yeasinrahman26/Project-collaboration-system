@@ -6,6 +6,7 @@ frontend/build
 
 # Backend
 server/node_modules
+utils/seedData.js
 
 # Environment files
 frontend/.env
