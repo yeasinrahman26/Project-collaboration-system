@@ -8,6 +8,7 @@ import {
   HighPriorityTasks,
   ProjectSummary,
 } from "@/components/Dashboard";
+import { TaskDetailModal } from "@/components/TaskDetail";
 
 export default function DashboardPage() {
   return (
@@ -42,6 +43,7 @@ export default function DashboardPage() {
           <HighPriorityTasks />
         </div>
       </div>
+      <TaskDetailModal />
     </div>
   );
 }
