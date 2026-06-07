@@ -27,9 +27,9 @@ export function KanbanBoard({ onEdit, onDelete }) {
 
   const tasksByStatus = organizeTasksByStatus();
 
-  const handleDragStart = (e, task) => {
+  
+  const handleDragStart = (task) => {
     setDraggedTask(task);
-    e.dataTransfer.effectAllowed = "move";
   };
 
   const handleDragEnd = () => {
@@ -47,34 +47,28 @@ export function KanbanBoard({ onEdit, onDelete }) {
     try {
       await changeTaskStatus(draggedTask._id, newStatus);
       toast.success(`Task moved to ${newStatus}`);
-      setDraggedTask(null);
     } catch (error) {
       toast.error("Failed to move task");
+    } finally {
       setDraggedTask(null);
     }
   };
 
   return (
+
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {Object.values(TASK_STATUS).map((status) => (
-        <div
+        <TaskColumn
           key={status}
-          onDragStart={(e) => {
-            if (draggedTask) {
-              e.dataTransfer.effectAllowed = "move";
-            }
-          }}
-          onDragEnd={handleDragEnd}
-        >
-          <TaskColumn
-            status={status}
-            tasks={tasksByStatus[status] || []}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            onDrop={() => handleDrop(status)}
-            onDragOver={() => {}}
-          />
-        </div>
+          status={status}
+          tasks={tasksByStatus[status] || []}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onDrop={handleDrop}
+          onDragStart={handleDragStart} 
+          onDragEnd={handleDragEnd} 
+          draggedTaskId={draggedTask?._id} 
+        />
       ))}
     </div>
   );

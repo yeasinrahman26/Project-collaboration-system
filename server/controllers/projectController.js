@@ -165,7 +165,6 @@ exports.removeMember = async (req, res) => {
   }
 };
 
-// Get project stats
 exports.getProjectStats = async (req, res) => {
   try {
     const { projectId } = req.params;

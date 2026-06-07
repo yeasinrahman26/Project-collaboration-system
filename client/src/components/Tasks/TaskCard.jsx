@@ -16,7 +16,8 @@ export function TaskCard({
   task,
   onEdit,
   onDelete,
-  onStatusChange,
+  onDragStart, 
+  onDragEnd, 
   isDragging,
 }) {
   const dispatch = useDispatch();
@@ -48,10 +49,17 @@ export function TaskCard({
   return (
     <div
       draggable
-      className={`bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 cursor-move transition-all hover:shadow-md ${
-        isDragging ? "opacity-50" : "opacity-100"
+     
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = "move";
+        onDragStart?.(task);
+      }}
+     
+      onDragEnd={onDragEnd}
+      className={`bg-white b dark:bg-gray-800 rounded-lg p-4 border-l-4 border-b-4 cursor-move transition-all hover:shadow-md ${
+        isDragging ? "opacity-50 scale-95 rotate-1" : "opacity-100" 
       }`}
-      style={{ borderLeftColor: PRIORITY_COLORS[task.priority] }}
+      style={{ borderLeftColor: PRIORITY_COLORS[task.priority] , borderBottomColor: PRIORITY_COLORS[task.priority]}}
       onClick={handleViewTask}
     >
       {/* Title */}

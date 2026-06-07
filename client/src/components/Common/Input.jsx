@@ -9,15 +9,20 @@ export const Input = forwardRef(function Input(
   return (
     <div className="w-full">
       {label && <label className="form-label">{label}</label>}
-      <div className="relative">
+      <div
+        className={`flex items-center gap-2 input-field ${
+          error ? "border-error focus-within:ring-error" : ""
+        }`}
+      >
         {Icon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">
+          <div className="text-gray-500 dark:text-gray-400">
             <Icon size={18} />
           </div>
         )}
+
         <input
           ref={ref}
-          className={`input-field ${Icon ? "pl-10" : ""} ${error ? "border-error focus:ring-error" : ""}`}
+          className="flex-1 bg-transparent outline-none"
           {...props}
         />
       </div>

@@ -3,7 +3,7 @@
 import { useDispatch } from "react-redux";
 import { useTasks } from "@/lib/hooks";
 import { useModal } from "@/lib/hooks";
-import { openModal } from "@/lib/redux/slices/uiSlice";
+import { setCurrentTask } from "@/lib/redux/slices/tasksSlice";
 import { KanbanBoard, TaskFilters, TaskModal } from "@/components/Tasks";
 import { Button } from "@/components/Common/Button";
 import toast from "react-hot-toast";
@@ -15,11 +15,12 @@ export default function TasksPage() {
   const { open: openTaskModal } = useModal("taskModal");
 
   const handleCreateTask = () => {
+    dispatch(setCurrentTask(null));
     openTaskModal();
   };
 
   const handleEditTask = (task) => {
-    // TODO: Set editing task and open modal
+    dispatch(setCurrentTask(task));
     openTaskModal();
   };
 

@@ -9,9 +9,10 @@ export function TaskColumn({
   tasks,
   onEdit,
   onDelete,
-  onStatusChange,
   onDrop,
-  onDragOver,
+  onDragStart, 
+  onDragEnd, 
+  draggedTaskId, // ✅ FIX 2: received so TaskCard knows if it's the one being dragged
 }) {
   const getColumnHeader = (status) => {
     switch (status) {
@@ -37,12 +38,11 @@ export function TaskColumn({
     <div
       className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 flex flex-col min-h-[500px]"
       onDragOver={(e) => {
-        e.preventDefault();
-        onDragOver?.(status);
+        e.preventDefault(); 
       }}
       onDrop={(e) => {
         e.preventDefault();
-        onDrop?.(status);
+        onDrop?.(status); 
       }}
     >
       {/* Header */}
@@ -70,7 +70,9 @@ export function TaskColumn({
               task={task}
               onEdit={onEdit}
               onDelete={onDelete}
-              onStatusChange={onStatusChange}
+              onDragStart={onDragStart} 
+              onDragEnd={onDragEnd} 
+              isDragging={draggedTaskId === task._id} 
             />
           ))
         )}

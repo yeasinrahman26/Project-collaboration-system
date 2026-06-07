@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useSelector } from "react-redux"; 
 import { useTasks, useProjects } from "@/lib/hooks";
 import { useModal } from "@/lib/hooks";
 import { Modal } from "@/components/Common/Modal";
@@ -9,14 +10,16 @@ import { Button } from "@/components/Common/Button";
 import { Input } from "@/components/Common/Input";
 import { TASK_PRIORITY, TASK_STATUS } from "@/lib/utils/constants";
 import toast from "react-hot-toast";
-import { Calendar, AlertCircle } from "lucide-react";
+import { Calendar } from "lucide-react";
 
 export function TaskModal() {
   const { isOpen, close } = useModal("taskModal");
   const { createTask, updateTask } = useTasks();
   const { projects } = useProjects();
   const [loading, setLoading] = useState(false);
-  const [editingTask, setEditingTask] = useState(null);
+
+  const currentTask = useSelector((state) => state.tasks.currentTask);
+
   const {
     register,
     handleSubmit,
@@ -32,12 +35,38 @@ export function TaskModal() {
     },
   });
 
+  
+  useEffect(() => {
+    if (isOpen) {
+      if (currentTask) {
+        reset({
+          title: currentTask.title || "",
+          description: currentTask.description || "",
+          projectId: currentTask.projectId?._id || currentTask.projectId || "",
+          priority: currentTask.priority || TASK_PRIORITY.MEDIUM,
+          // format date to yyyy-MM-dd for the date input
+          dueDate: currentTask.dueDate
+            ? new Date(currentTask.dueDate).toISOString().split("T")[0]
+            : "",
+        });
+      } else {
+        reset({
+          title: "",
+          description: "",
+          projectId: "",
+          priority: TASK_PRIORITY.MEDIUM,
+          dueDate: "",
+        });
+      }
+    }
+  }, [isOpen, currentTask, reset]);
+
   const onSubmit = async (data) => {
     try {
       setLoading(true);
 
-      if (editingTask) {
-        await updateTask(editingTask._id, data);
+      if (currentTask) {
+        await updateTask(currentTask._id, data);
         toast.success("Task updated successfully!");
       } else {
         await createTask(data);
@@ -46,7 +75,6 @@ export function TaskModal() {
 
       reset();
       close();
-      setEditingTask(null);
     } catch (error) {
       toast.error(error?.data?.message || "Failed to save task");
     } finally {
@@ -56,7 +84,6 @@ export function TaskModal() {
 
   const handleClose = () => {
     reset();
-    setEditingTask(null);
     close();
   };
 
@@ -64,7 +91,7 @@ export function TaskModal() {
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={editingTask ? "Edit Task" : "Create New Task"}
+      title={currentTask ? "Edit Task" : "Create New Task"} 
       size="md"
       footer={
         <>
@@ -76,7 +103,8 @@ export function TaskModal() {
             onClick={handleSubmit(onSubmit)}
             loading={loading}
           >
-            {editingTask ? "Update" : "Create"}
+            {currentTask ? "Update" : "Create"}{" "}
+         
           </Button>
         </>
       }
