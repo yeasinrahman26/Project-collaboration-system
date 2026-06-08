@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setCurrentProject } from "@/lib/redux/slices/projectsSlice"; // ✅ USE YOUR SLICE
+import { setCurrentProject } from "@/lib/redux/slices/projectsSlice";
 import { useProjects } from "@/lib/hooks";
 import { useModal } from "@/lib/hooks";
 import {
@@ -14,12 +14,18 @@ import {
 import { Button } from "@/components/Common/Button";
 import toast from "react-hot-toast";
 import { Plus } from "lucide-react";
+import { Pagination } from "@/components/Common/pagination";
 
 export default function ProjectsPage() {
   const dispatch = useDispatch();
-  const { projects, isLoading, deleteProject } = useProjects();
+  const {
+    projects,
+    isLoading,
+    deleteProject,
+    pagination,
+    setPage, // ✅ NEW
+  } = useProjects();
 
-  // ✅ GET currentProject from your projectsSlice
   const currentProject = useSelector((state) => state.projects.currentProject);
 
   const { open: openProjectModal } = useModal("projectModal");
@@ -30,27 +36,24 @@ export default function ProjectsPage() {
   } = useModal("membersModal");
 
   const handleCreateProject = () => {
-    dispatch(setCurrentProject(null)); // Clear for new project
+    dispatch(setCurrentProject(null));
     openProjectModal();
   };
 
-  // ✅ FIX: Use dispatch to set current project + open modal
   const handleManageMembers = (project) => {
-    dispatch(setCurrentProject(project)); // ✅ YOUR ACTION
+    dispatch(setCurrentProject(project));
     openMembersModal();
   };
 
-  // ✅ NEW: Close modal and clear current project
   const handleCloseMembersModal = () => {
     closeMembersModal();
-    // Optional: Clear after animation completes
     setTimeout(() => {
       dispatch(setCurrentProject(null));
     }, 300);
   };
 
   const handleEditProject = (project) => {
-    dispatch(setCurrentProject(project)); // ✅ YOUR ACTION
+    dispatch(setCurrentProject(project));
     openProjectModal();
   };
 
@@ -67,6 +70,11 @@ export default function ProjectsPage() {
 
   const handleViewProject = (project) => {
     console.log("View project:", project);
+  };
+
+  // ✅ NEW: Handle page change
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
   };
 
   return (
@@ -104,13 +112,17 @@ export default function ProjectsPage() {
         onManageMembers={handleManageMembers}
       />
 
-      {/* Pagination */}
-      {/* TODO: Add pagination if needed */}
+      {/* ✅ NEW: Pagination */}
+      <Pagination
+        currentPage={pagination.page}
+        totalPages={pagination.pages}
+        onPageChange={handlePageChange}
+        isLoading={isLoading}
+      />
 
       {/* Modals */}
       <ProjectModal />
       <MembersModal
-        project={currentProject} // ✅ USE currentProject
         isOpen={isMembersModalOpen}
         onClose={handleCloseMembersModal}
       />

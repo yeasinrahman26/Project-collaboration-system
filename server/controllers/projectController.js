@@ -34,7 +34,7 @@ exports.createProject = async (req, res) => {
 
 exports.getProjects = async (req, res) => {
   try {
-    const { status, sort, page = 1, limit = 10 } = req.query;
+    const { status, sort, page = 1, limit = 9 } = req.query;
     let filter = { members: req.user.id };
     let sortOption = { createdAt: -1 };
 

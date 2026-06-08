@@ -40,7 +40,6 @@ export const useProjects = () => {
   const [deleteMutation] = useDeleteProjectMutation();
   const [addMemberMutation] = useAddMemberMutation();
 
-  // ✅ FIX: Move dispatch logic into useEffect
   useEffect(() => {
     if (projectsData && projectsData.projects) {
       dispatch(setProjects(projectsData.projects));
@@ -109,6 +108,14 @@ export const useProjects = () => {
     [dispatch],
   );
 
+  // ✅ NEW: Add this function for pagination
+  const setPage = useCallback(
+    (page) => {
+      dispatch(setFilters({ page }));
+    },
+    [dispatch],
+  );
+
   return {
     projects: projectsState.list,
     currentProject: projectsState.currentProject,
@@ -121,6 +128,7 @@ export const useProjects = () => {
     deleteProject: deleteProjectData,
     addMemberToProject,
     setFilters: setProjectFilters,
+    setPage, // ✅ NEW: Export this
     refetch,
   };
 };

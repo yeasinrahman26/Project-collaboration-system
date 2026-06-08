@@ -49,7 +49,7 @@ export function ProjectCard({ project, onEdit, onDelete, onView, onManageMembers
                 className="text-blue-600 dark:text-blue-400"
               />
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex gap-2 min-w-0">
               <h3 className="font-bold text-gray-900 dark:text-white truncate">
                 {project.name}
               </h3>
@@ -103,6 +103,13 @@ export function ProjectCard({ project, onEdit, onDelete, onView, onManageMembers
             {project.members?.length || 0} member
             {project.members?.length !== 1 ? "s" : ""}
           </span>
+          <button
+            onClick={() => onManageMembers(project)}
+            className=" flex items-center justify-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
+            <Users size={16} />
+            Manage Members
+          </button>
         </div>
 
         {/* Divider */}
@@ -110,7 +117,7 @@ export function ProjectCard({ project, onEdit, onDelete, onView, onManageMembers
 
         {/* Actions */}
         <div
-          className="flex items-center gap-2"
+          className="flex flex-wrap items-center gap-2"
           onClick={(e) => e.stopPropagation()}
         >
           <button
@@ -120,13 +127,7 @@ export function ProjectCard({ project, onEdit, onDelete, onView, onManageMembers
             <Edit2 size={16} />
             Edit
           </button>
-          <button
-            onClick={() => onManageMembers(project)}
-            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            <Users size={16} />
-            Add Members
-          </button>
+
           <button
             onClick={() => onDelete(project._id)}
             className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-100 dark:bg-red-900 hover:bg-red-200 dark:hover:bg-red-800 rounded-lg transition text-sm font-medium text-error"

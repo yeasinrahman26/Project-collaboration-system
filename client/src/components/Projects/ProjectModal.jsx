@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useSelector, useDispatch } from "react-redux";
+import { clearSelectedProject } from "@/lib/redux/slices/projectsSlice";
 import { useProjects } from "@/lib/hooks";
 import { useModal } from "@/lib/hooks";
 import { Modal } from "@/components/Common/Modal";
@@ -11,10 +13,15 @@ import toast from "react-hot-toast";
 import { Calendar } from "lucide-react";
 
 export function ProjectModal() {
+  const dispatch = useDispatch();
   const { isOpen, close } = useModal("projectModal");
   const { createProject, updateProject } = useProjects();
+
+
+  const currentProject = useSelector((state) => state.projects.currentProject);
+
   const [loading, setLoading] = useState(false);
-  const [editingProject, setEditingProject] = useState(null);
+
   const {
     register,
     handleSubmit,
@@ -29,21 +36,45 @@ export function ProjectModal() {
     },
   });
 
+  
+  useEffect(() => {
+    if (isOpen && currentProject) {
+    
+      reset({
+        name: currentProject.name || "",
+        description: currentProject.description || "",
+        deadline: currentProject.deadline
+          ? currentProject.deadline.split("T")[0]
+          : "", // Format date for input
+        status: currentProject.status || "Active",
+      });
+    } else if (isOpen && !currentProject) {
+     
+      reset({
+        name: "",
+        description: "",
+        deadline: "",
+        status: "Active",
+      });
+    }
+  }, [isOpen, currentProject, reset]);
+
   const onSubmit = async (data) => {
     try {
       setLoading(true);
 
-      if (editingProject) {
-        await updateProject(editingProject._id, data);
+      if (currentProject) {
+       
+        await updateProject(currentProject._id, data);
         toast.success("Project updated successfully!");
       } else {
+       
         await createProject(data);
         toast.success("Project created successfully!");
       }
 
       reset();
-      close();
-      setEditingProject(null);
+      handleClose();
     } catch (error) {
       toast.error(error?.data?.message || "Failed to save project");
     } finally {
@@ -53,15 +84,16 @@ export function ProjectModal() {
 
   const handleClose = () => {
     reset();
-    setEditingProject(null);
     close();
+   
+    dispatch(clearSelectedProject());
   };
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={editingProject ? "Edit Project" : "Create New Project"}
+      title={currentProject ? "Edit Project" : "Create New Project"}
       size="md"
       footer={
         <>
@@ -73,7 +105,7 @@ export function ProjectModal() {
             onClick={handleSubmit(onSubmit)}
             loading={loading}
           >
-            {editingProject ? "Update" : "Create"}
+            {currentProject ? "Update Project" : "Create Project"}
           </Button>
         </>
       }
@@ -111,9 +143,10 @@ export function ProjectModal() {
             <p className="error-message">{errors.description.message}</p>
           )}
         </div>
+
+        {/* Project Status */}
         <div>
           <label className="form-label">Project Status</label>
-
           <select
             className="input-field"
             {...register("status", {
@@ -124,7 +157,6 @@ export function ProjectModal() {
             <option value="Completed">Completed</option>
             <option value="On Hold">On Hold</option>
           </select>
-
           {errors.status && (
             <p className="error-message">{errors.status.message}</p>
           )}

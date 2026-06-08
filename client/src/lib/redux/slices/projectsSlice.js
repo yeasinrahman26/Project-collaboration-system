@@ -28,6 +28,9 @@ const projectsSlice = createSlice({
     setCurrentProject: (state, action) => {
       state.currentProject = action.payload;
     },
+    clearSelectedProject: (state) => {
+      state.currentProject = null;
+    },
     setLoading: (state, action) => {
       state.isLoading = action.payload;
     },
@@ -58,6 +61,7 @@ const projectsSlice = createSlice({
 export const {
   setProjects,
   setCurrentProject,
+  clearSelectedProject,
   setLoading,
   setError,
   setFilters,
