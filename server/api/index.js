@@ -7,10 +7,11 @@ const app = express();
 
 // ✨ CORS Configuration
 const allowedOrigins = [
-  "http://localhost:3000", // Local React dev
-  "http://localhost:5000", // Local API dev
+  "http://localhost:3000",
+  "http://localhost:5000",
   process.env.FRONTEND_URL,
-];
+  process.env.PRODUCTION_FRONTEND_URL,
+].filter(Boolean); // ✅ Remove undefined values
 
 const corsOptions = {
   origin: (origin, callback) => {
@@ -27,8 +28,9 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // ✅ ADD THIS LINE (handles preflight)
 app.use(express.json());
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
+app.use(express.urlencoding({ limit: "50mb", extended: true }));
 
 // MongoDB Connection...
 const connectDB = async () => {
