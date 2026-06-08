@@ -5,13 +5,13 @@ require("dotenv").config();
 
 const app = express();
 
-// ✨ CORS Configuration
+// CORS Configuration
 const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:5000",
   process.env.FRONTEND_URL,
   process.env.PRODUCTION_FRONTEND_URL,
-].filter(Boolean); // ✅ Remove undefined values
+].filter(Boolean);
 
 const corsOptions = {
   origin: (origin, callback) => {
@@ -28,30 +28,35 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // ✅ ADD THIS LINE (handles preflight)
+app.options("*", cors(corsOptions));
 app.use(express.json());
-app.use(express.urlencoding({ limit: "50mb", extended: true }));
+app.use(express.urlencoded({ limit: "50mb", extended: true })); // ✅ fixed typo
 
-// MongoDB Connection...
+// MongoDB Connection — lazy singleton for serverless
+let isConnected = false;
 const connectDB = async () => {
-  if (mongoose.connections[0].readyState) {
-    return;
-  }
-
+  if (isConnected) return;
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(process.env.MONGODB_URI);
+    isConnected = true;
     console.log("✓ MongoDB connected");
   } catch (err) {
     console.error("✗ MongoDB error:", err);
+    throw err;
   }
 };
 
-connectDB();
+// Middleware to connect DB before every request
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch {
+    res.status(500).json({ message: "Database connection failed" });
+  }
+});
 
-// Import Routes
+// Routes — paths relative to api/index.js
 const authRoutes = require("../routes/auth");
 const projectRoutes = require("../routes/projects");
 const taskRoutes = require("../routes/tasks");
@@ -66,7 +71,6 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "Server running", timestamp: new Date() });
 });
 
-// API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/tasks", taskRoutes);
