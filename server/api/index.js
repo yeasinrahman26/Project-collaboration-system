@@ -56,15 +56,23 @@ app.use(async (req, res, next) => {
   }
 });
 
-// Routes — paths relative to api/index.js
-const authRoutes = require("../routes/auth");
-const projectRoutes = require("../routes/projects");
-const taskRoutes = require("../routes/tasks");
-const commentRoutes = require("../routes/comments");
-const notificationRoutes = require("../routes/notifications");
-const dashboardRoutes = require("../routes/dashboard");
-const searchRoutes = require("../routes/search");
-const activityRoutes = require("../routes/activities");
+const loadRoute = (path) => {
+  try {
+    return require(path);
+  } catch (err) {
+    console.error(`Failed to load route: ${path}`, err.message);
+    return require("express").Router(); // return empty router so app doesn't crash
+  }
+};
+
+const authRoutes = loadRoute("../routes/auth");
+const projectRoutes = loadRoute("../routes/projects");
+const taskRoutes = loadRoute("../routes/tasks");
+const commentRoutes = loadRoute("../routes/comments");
+const notificationRoutes = loadRoute("../routes/notifications");
+const dashboardRoutes = loadRoute("../routes/dashboard");
+const searchRoutes = loadRoute("../routes/search");
+const activityRoutes = loadRoute("../routes/activities");
 
 // Health Check
 app.get("/api/health", (req, res) => {
