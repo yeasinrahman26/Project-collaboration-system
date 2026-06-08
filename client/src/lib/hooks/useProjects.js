@@ -1,6 +1,7 @@
 "use client";
 
 import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
 import {
   useGetProjectsQuery,
   useCreateProjectMutation,
@@ -39,11 +40,13 @@ export const useProjects = () => {
   const [deleteMutation] = useDeleteProjectMutation();
   const [addMemberMutation] = useAddMemberMutation();
 
-  // Update state when data changes
-  if (projectsData && projectsData.projects) {
-    dispatch(setProjects(projectsData.projects));
-    dispatch(setPagination(projectsData.pagination));
-  }
+  // ✅ FIX: Move dispatch logic into useEffect
+  useEffect(() => {
+    if (projectsData && projectsData.projects) {
+      dispatch(setProjects(projectsData.projects));
+      dispatch(setPagination(projectsData.pagination));
+    }
+  }, [projectsData, dispatch]);
 
   const createProject = useCallback(
     async (projectData) => {

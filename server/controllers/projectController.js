@@ -5,12 +5,13 @@ const Notification = require("../models/Notification");
 
 exports.createProject = async (req, res) => {
   try {
-    const { name, description, deadline } = req.body;
+    const { name, description, deadline, status } = req.body;
 
     const project = new Project({
       name,
       description,
       deadline,
+      status, 
       createdBy: req.user.id,
       members: [req.user.id],
     });

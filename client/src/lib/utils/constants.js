@@ -51,7 +51,7 @@ export const TASK_PRIORITY = {
 export const PROJECT_STATUS = {
   ACTIVE: "Active",
   COMPLETED: "Completed",
-  ON_HOLD: "OnHold",
+  ON_HOLD: "On Hold",
 };
 
 export const USER_ROLES = {

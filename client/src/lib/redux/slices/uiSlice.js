@@ -5,6 +5,7 @@ const initialState = {
   sidebarOpen: true,
   modals: {
     projectModal: false,
+    membersModal: false,
     taskModal: false,
     taskDetailModal: false,
     addMemberModal: false,

@@ -25,6 +25,7 @@ export function ProjectModal() {
       name: "",
       description: "",
       deadline: "",
+      status: "Active",
     },
   });
 
@@ -108,6 +109,24 @@ export function ProjectModal() {
           />
           {errors.description && (
             <p className="error-message">{errors.description.message}</p>
+          )}
+        </div>
+        <div>
+          <label className="form-label">Project Status</label>
+
+          <select
+            className="input-field"
+            {...register("status", {
+              required: "Status is required",
+            })}
+          >
+            <option value="Active">Active</option>
+            <option value="Completed">Completed</option>
+            <option value="On Hold">On Hold</option>
+          </select>
+
+          {errors.status && (
+            <p className="error-message">{errors.status.message}</p>
           )}
         </div>
 

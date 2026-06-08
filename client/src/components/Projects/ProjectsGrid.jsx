@@ -9,6 +9,7 @@ export function ProjectsGrid({
   onEdit,
   onDelete,
   onView,
+  onManageMembers,
 }) {
   if (isLoading) return <SkeletonLoader />;
 
@@ -34,6 +35,7 @@ export function ProjectsGrid({
           onEdit={onEdit}
           onDelete={onDelete}
           onView={() => onView(project)}
+          onManageMembers={() => onManageMembers(project)}
         />
       ))}
     </div>

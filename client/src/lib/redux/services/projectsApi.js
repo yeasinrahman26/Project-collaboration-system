@@ -53,7 +53,10 @@ export const projectsApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      invalidatesTags: ["Projects"],
+      invalidatesTags: (result, error, { projectId }) => [
+        { type: "Projects", id: projectId },
+        "Projects",
+      ],
     }),
 
     removeMember: builder.mutation({
