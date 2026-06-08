@@ -3,9 +3,20 @@
 import { useProjects } from "@/lib/hooks";
 import { PROJECT_STATUS } from "@/lib/utils/constants";
 import { Search, Filter, X } from "lucide-react";
+import { useState, useCallback } from "react";
 
 export function ProjectFilters() {
   const { filters, setFilters } = useProjects();
+  const [searchInput, setSearchInput] = useState("");
+
+  const handleSearchChange = useCallback(
+    (value) => {
+      setSearchInput(value);
+      // Reset to page 1 when searching
+      setFilters({ search: value || "", page: 1 });
+    },
+    [setFilters],
+  );
 
   const handleStatusChange = (status) => {
     setFilters({ status: filters.status === status ? "" : status, page: 1 });
@@ -16,10 +27,12 @@ export function ProjectFilters() {
   };
 
   const handleClearFilters = () => {
-    setFilters({ status: "", sort: "createdAt", page: 1 });
+    setSearchInput("");
+    setFilters({ status: "", sort: "createdAt", page: 1, search: "" });
   };
 
-  const hasActiveFilters = filters.status || filters.sort !== "createdAt";
+  const hasActiveFilters =
+    filters.status || filters.sort !== "createdAt" || filters.search;
 
   return (
     <div className="space-y-4 mb-6">
@@ -29,8 +42,18 @@ export function ProjectFilters() {
         <input
           type="text"
           placeholder="Search projects..."
-          className="flex-1 bg-transparent outline-none text-sm text-gray-900 dark:text-white"
+          value={searchInput}
+          onChange={(e) => handleSearchChange(e.target.value)}
+          className="flex-1 bg-transparent outline-none text-sm text-gray-900 dark:text-white placeholder-gray-400"
         />
+        {searchInput && (
+          <button
+            onClick={() => handleSearchChange("")}
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          >
+            <X size={16} />
+          </button>
+        )}
       </div>
 
       {/* Filters */}

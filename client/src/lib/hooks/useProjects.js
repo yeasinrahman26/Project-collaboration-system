@@ -9,6 +9,7 @@ import {
   useDeleteProjectMutation,
   useAddMemberMutation,
 } from "../redux/services/projectsApi";
+import { useSearchProjectsQuery } from "../redux/services/searchApi"; // Add this
 import {
   setProjects,
   setCurrentProject,
@@ -24,28 +25,47 @@ export const useProjects = () => {
   const dispatch = useDispatch();
   const projectsState = useSelector((state) => state.projects);
 
+  // Determine if we're searching or getting all projects
+  const isSearching = !!projectsState.filters.search;
+
+  // Use search query if search is active, otherwise use regular query
+  const { data: searchData, isLoading: isSearchLoading } =
+    useSearchProjectsQuery(projectsState.filters.search, {
+      skip: !isSearching, // Skip if not searching
+    });
+
   const {
     data: projectsData,
-    isLoading,
+    isLoading: isProjectsLoading,
     error,
     refetch,
-  } = useGetProjectsQuery({
-    status: projectsState.filters.status,
-    sort: projectsState.filters.sort,
-    page: projectsState.filters.page,
-  });
+  } = useGetProjectsQuery(
+    {
+      status: projectsState.filters.status,
+      sort: projectsState.filters.sort,
+      page: projectsState.filters.page,
+    },
+    {
+      skip: isSearching, // Skip if searching
+    },
+  );
 
   const [createMutation] = useCreateProjectMutation();
   const [updateMutation] = useUpdateProjectMutation();
   const [deleteMutation] = useDeleteProjectMutation();
   const [addMemberMutation] = useAddMemberMutation();
 
+  // Handle both search and regular results
   useEffect(() => {
-    if (projectsData && projectsData.projects) {
+    if (isSearching && searchData) {
+      // For search results, don't use pagination
+      dispatch(setProjects(searchData));
+      dispatch(setPagination({ page: 1, pages: 1 }));
+    } else if (projectsData && projectsData.projects) {
       dispatch(setProjects(projectsData.projects));
       dispatch(setPagination(projectsData.pagination));
     }
-  }, [projectsData, dispatch]);
+  }, [projectsData, searchData, isSearching, dispatch]);
 
   const createProject = useCallback(
     async (projectData) => {
@@ -108,13 +128,14 @@ export const useProjects = () => {
     [dispatch],
   );
 
-  // ✅ NEW: Add this function for pagination
   const setPage = useCallback(
     (page) => {
       dispatch(setFilters({ page }));
     },
     [dispatch],
   );
+
+  const isLoading = isSearching ? isSearchLoading : isProjectsLoading;
 
   return {
     projects: projectsState.list,
@@ -128,7 +149,7 @@ export const useProjects = () => {
     deleteProject: deleteProjectData,
     addMemberToProject,
     setFilters: setProjectFilters,
-    setPage, // ✅ NEW: Export this
+    setPage,
     refetch,
   };
 };

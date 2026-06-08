@@ -9,6 +9,7 @@ const initialState = {
     status: "",
     sort: "createdAt",
     page: 1,
+    search: "",
   },
   pagination: {
     page: 1,

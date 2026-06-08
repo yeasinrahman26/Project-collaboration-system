@@ -29,7 +29,6 @@ export function MembersModal({ isOpen, onClose }) {
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedQuery = useDebounce(searchQuery, 500);
 
-  // ✅ NEW: Reset search when modal closes
   useEffect(() => {
     if (!isOpen) {
       setSearchQuery("");
@@ -162,7 +161,7 @@ export function MembersModal({ isOpen, onClose }) {
                         />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="font-medium text-sm truncate">
+                        <p className="font-medium text-gray-500 text-sm truncate">
                           {user.name}
                         </p>
                         <p className="text-xs text-gray-500 truncate">
@@ -229,7 +228,7 @@ export function MembersModal({ isOpen, onClose }) {
                       )}
 
                       <div className="min-w-0 flex-1">
-                        <p className="font-medium text-sm truncate">
+                        <p className="font-medium text-sm text-gray-500 truncate">
                           {member.name}
                         </p>
                         <p className="text-xs text-gray-500 truncate">

@@ -7,7 +7,7 @@ export const projectsApi = baseApi.injectEndpoints({
         status = "",
         sort = "createdAt",
         page = 1,
-        limit = 10,
+        limit = 9,
       } = {}) => {
         let url = `/projects?page=${page}&limit=${limit}&sort=${sort}`;
         if (status) url += `&status=${status}`;

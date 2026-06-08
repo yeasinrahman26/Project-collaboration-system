@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentProject } from "@/lib/redux/slices/projectsSlice";
 import { useProjects } from "@/lib/hooks";
@@ -23,7 +22,7 @@ export default function ProjectsPage() {
     isLoading,
     deleteProject,
     pagination,
-    setPage, // ✅ NEW
+    setPage,
   } = useProjects();
 
   const currentProject = useSelector((state) => state.projects.currentProject);
@@ -72,7 +71,6 @@ export default function ProjectsPage() {
     console.log("View project:", project);
   };
 
-  // ✅ NEW: Handle page change
   const handlePageChange = (newPage) => {
     setPage(newPage);
   };
@@ -112,7 +110,6 @@ export default function ProjectsPage() {
         onManageMembers={handleManageMembers}
       />
 
-      {/* ✅ NEW: Pagination */}
       <Pagination
         currentPage={pagination.page}
         totalPages={pagination.pages}
