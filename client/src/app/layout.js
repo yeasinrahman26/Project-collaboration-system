@@ -2,7 +2,7 @@ import { Providers } from "./providers";
 import "./globals.css";
 
 export const metadata = {
-  title: "Project Collaboration System",
+  title: "Taskforge Collaboration System",
   description: "Manage projects, tasks, and team collaboratively",
   icons: {
     icon: "/favicon.ico",

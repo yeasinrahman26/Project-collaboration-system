@@ -12,7 +12,13 @@ import {
   UserPlus,
 } from "lucide-react";
 
-export function ProjectCard({ project, onEdit, onDelete, onView, onManageMembers }) {
+export function ProjectCard({
+  project,
+  onEdit,
+  onDelete,
+  onView,
+  onManageMembers,
+}) {
   const getStatusColor = (status) => {
     switch (status) {
       case "Active":
@@ -104,8 +110,11 @@ export function ProjectCard({ project, onEdit, onDelete, onView, onManageMembers
             {project.members?.length !== 1 ? "s" : ""}
           </span>
           <button
-            onClick={() => onManageMembers(project)}
-            className=" flex items-center justify-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition text-sm font-medium text-gray-700 dark:text-gray-300"
+            onClick={(e) => {
+              e.stopPropagation();
+              onManageMembers(project);
+            }}
+            className="flex items-center justify-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition text-sm font-medium text-gray-700 dark:text-gray-300"
           >
             <Users size={16} />
             Manage Members
@@ -129,7 +138,7 @@ export function ProjectCard({ project, onEdit, onDelete, onView, onManageMembers
           </button>
 
           <button
-            onClick={() => onDelete(project._id)}
+            onClick={() => onDelete(project._id, project.name)}
             className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-100 dark:bg-red-900 hover:bg-red-200 dark:hover:bg-red-800 rounded-lg transition text-sm font-medium text-error"
           >
             <Trash2 size={16} />

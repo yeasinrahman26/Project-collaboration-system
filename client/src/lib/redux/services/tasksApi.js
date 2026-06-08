@@ -11,12 +11,16 @@ export const tasksApi = baseApi.injectEndpoints({
         sort = "createdAt",
         page = 1,
         limit = 10,
+        myTasks = false,
+        search = "", // NEW
       } = {}) => {
         let url = `/tasks?page=${page}&limit=${limit}&sort=${sort}`;
         if (projectId) url += `&projectId=${projectId}`;
         if (status) url += `&status=${status}`;
         if (priority) url += `&priority=${priority}`;
         if (assignedTo) url += `&assignedTo=${assignedTo}`;
+        if (myTasks) url += `&myTasks=true`;
+        if (search) url += `&search=${encodeURIComponent(search)}`; // NEW
         return url;
       },
       providesTags: ["Tasks"],

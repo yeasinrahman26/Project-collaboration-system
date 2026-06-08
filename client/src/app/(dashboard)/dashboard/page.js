@@ -19,7 +19,7 @@ export default function DashboardPage() {
           Dashboard
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Welcome! Here's your project overview
+          Welcome! Here&apos;s your project overview
         </p>
       </div>
 

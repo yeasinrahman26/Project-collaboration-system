@@ -45,17 +45,10 @@ export function KPICards() {
       color: "bg-yellow-100 dark:bg-yellow-900",
       iconColor: "text-yellow-600 dark:text-yellow-400",
     },
-    {
-      label: "Overdue Tasks",
-      value: stats.tasks?.overdue || 0,
-      icon: AlertCircle,
-      color: "bg-red-100 dark:bg-red-900",
-      iconColor: "text-red-600 dark:text-red-400",
-    },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       {kpis.map((kpi, index) => {
         const Icon = kpi.icon;
         return (

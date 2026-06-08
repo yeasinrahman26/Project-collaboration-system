@@ -1,6 +1,7 @@
 "use client";
 
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useAuth } from "@/lib/hooks";
 import { setCurrentTask } from "@/lib/redux/slices/tasksSlice";
 import { openModal } from "@/lib/redux/slices/uiSlice";
 import { formatDate } from "@/lib/utils/formatters";
@@ -16,11 +17,12 @@ export function TaskCard({
   task,
   onEdit,
   onDelete,
-  onDragStart, 
-  onDragEnd, 
+  onDragStart,
+  onDragEnd,
   isDragging,
 }) {
   const dispatch = useDispatch();
+  const { user } = useAuth();
 
   const getPriorityColor = (priority) => {
     switch (priority) {
@@ -40,6 +42,13 @@ export function TaskCard({
     new Date(task.dueDate) < new Date() &&
     task.status !== TASK_STATUS.COMPLETED;
 
+  // Check if user can edit/delete (Admin, ProjectManager, or task creator)
+  const canEditDelete =
+    user?.role === "Admin" || user?.role === "ProjectManager";
+
+  // Check if user is assigned to this task
+  const isAssignedToMe = task.assignedTo?._id === user?.id;
+
   const handleViewTask = (e) => {
     e.stopPropagation();
     dispatch(setCurrentTask(task));
@@ -49,17 +58,18 @@ export function TaskCard({
   return (
     <div
       draggable
-     
       onDragStart={(e) => {
         e.dataTransfer.effectAllowed = "move";
         onDragStart?.(task);
       }}
-     
       onDragEnd={onDragEnd}
-      className={`bg-white b dark:bg-gray-800 rounded-lg p-4 border-l-4 border-b-4 cursor-move transition-all hover:shadow-md ${
-        isDragging ? "opacity-50 scale-95 rotate-1" : "opacity-100" 
+      className={`bg-white dark:bg-gray-800 rounded-lg p-4 border-l-4 border-b-4 cursor-move transition-all hover:shadow-md ${
+        isDragging ? "opacity-50 scale-95 rotate-1" : "opacity-100"
       }`}
-      style={{ borderLeftColor: PRIORITY_COLORS[task.priority] , borderBottomColor: PRIORITY_COLORS[task.priority]}}
+      style={{
+        borderLeftColor: PRIORITY_COLORS[task.priority],
+        borderBottomColor: PRIORITY_COLORS[task.priority],
+      }}
       onClick={handleViewTask}
     >
       {/* Title */}
@@ -116,20 +126,39 @@ export function TaskCard({
         className="flex items-center gap-2"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          onClick={() => onEdit(task)}
-          className="flex-1 flex items-center justify-center gap-1 px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition text-gray-700 dark:text-gray-300"
-        >
-          <Edit2 size={12} />
-          Edit
-        </button>
-        <button
-          onClick={() => onDelete(task._id)}
-          className="flex-1 flex items-center justify-center gap-1 px-2 py-1 text-xs bg-red-100 dark:bg-red-900 hover:bg-red-200 dark:hover:bg-red-800 rounded transition text-error"
-        >
-          <Trash2 size={12} />
-          Delete
-        </button>
+        {/* Edit & Delete - Only for Admin/ProjectManager */}
+        {canEditDelete && (
+          <>
+            <button
+              onClick={() => onEdit(task)}
+              className="flex-1 flex items-center justify-center gap-1 px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition text-gray-700 dark:text-gray-300"
+            >
+              <Edit2 size={12} />
+              Edit
+            </button>
+            <button
+              onClick={() => onDelete(task._id)}
+              className="flex-1 flex items-center justify-center gap-1 px-2 py-1 text-xs bg-red-100 dark:bg-red-900 hover:bg-red-200 dark:hover:bg-red-800 rounded transition text-error"
+            >
+              <Trash2 size={12} />
+              Delete
+            </button>
+          </>
+        )}
+
+        {/* For TeamMembers - Only show if assigned to them */}
+        {!canEditDelete && isAssignedToMe && (
+          <div className="w-full text-center text-xs text-gray-500 dark:text-gray-400">
+            Drag to change status
+          </div>
+        )}
+
+        {/* If TeamMember but not assigned to them */}
+        {!canEditDelete && !isAssignedToMe && (
+          <div className="w-full text-center text-xs text-gray-400 dark:text-gray-500">
+           
+          </div>
+        )}
       </div>
     </div>
   );

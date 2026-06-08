@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useTasks, useProjects } from "@/lib/hooks";
 import { TASK_STATUS, TASK_PRIORITY } from "@/lib/utils/constants";
 import { Search, Filter, X } from "lucide-react";
@@ -7,6 +8,27 @@ import { Search, Filter, X } from "lucide-react";
 export function TaskFilters() {
   const { filters, setFilters } = useTasks();
   const { projects } = useProjects();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debounceTimer, setDebounceTimer] = useState(null);
+
+  // Debounce search - 500ms delay
+  useEffect(() => {
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+    }
+
+    const timer = setTimeout(() => {
+      setFilters({
+        search: searchQuery.trim(),
+        page: 1,
+      });
+    }, 500);
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDebounceTimer(timer);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, setFilters]);
 
   const handleStatusChange = (status) => {
     setFilters({
@@ -29,29 +51,57 @@ export function TaskFilters() {
     });
   };
 
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setFilters({
+      search: "",
+      page: 1,
+    });
+  };
+
   const handleClearFilters = () => {
+    setSearchQuery("");
     setFilters({
       status: "",
       priority: "",
       projectId: "",
       sort: "createdAt",
       page: 1,
+      search: "",
     });
   };
 
   const hasActiveFilters =
-    filters.status || filters.priority || filters.projectId;
+    filters.status || filters.priority || filters.projectId || searchQuery;
 
   return (
     <div className="space-y-4 mb-6 bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
       {/* Search Bar */}
-      <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-lg">
-        <Search size={18} className="text-gray-400" />
-        <input
-          type="text"
-          placeholder="Search tasks..."
-          className="flex-1 bg-transparent outline-none text-sm text-gray-900 dark:text-white"
-        />
+      <div className="relative">
+        <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-lg">
+          <Search size={18} className="text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search tasks by title or description..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 bg-transparent outline-none text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+          />
+          {searchQuery && (
+            <button
+              onClick={handleClearSearch}
+              className="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition"
+              title="Clear search"
+            >
+              <X size={18} className="text-gray-500" />
+            </button>
+          )}
+        </div>
+        {searchQuery && (
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Searching for: <span className="font-medium">{searchQuery}</span>
+          </p>
+        )}
       </div>
 
       {/* Filter Groups */}
@@ -144,7 +194,7 @@ export function TaskFilters() {
           className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-error hover:bg-red-50 dark:hover:bg-red-900 rounded-lg transition"
         >
           <X size={16} />
-          Clear All Filters
+          Clear All Filters & Search
         </button>
       )}
     </div>

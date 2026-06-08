@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useSelector } from "react-redux"; 
+import { useSelector } from "react-redux";
 import { useTasks, useProjects } from "@/lib/hooks";
 import { useModal } from "@/lib/hooks";
 import { Modal } from "@/components/Common/Modal";
@@ -10,13 +10,15 @@ import { Button } from "@/components/Common/Button";
 import { Input } from "@/components/Common/Input";
 import { TASK_PRIORITY, TASK_STATUS } from "@/lib/utils/constants";
 import toast from "react-hot-toast";
-import { Calendar } from "lucide-react";
+import { Calendar, Users } from "lucide-react";
 
 export function TaskModal() {
   const { isOpen, close } = useModal("taskModal");
   const { createTask, updateTask } = useTasks();
   const { projects } = useProjects();
   const [loading, setLoading] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [projectMembers, setProjectMembers] = useState([]);
 
   const currentTask = useSelector((state) => state.tasks.currentTask);
 
@@ -24,18 +26,35 @@ export function TaskModal() {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm({
     defaultValues: {
       title: "",
       description: "",
       projectId: "",
+      assignedTo: "",
       priority: TASK_PRIORITY.MEDIUM,
       dueDate: "",
     },
   });
 
-  
+  const projectIdValue = watch("projectId");
+
+  // Update project members when project is selected
+  useEffect(() => {
+    if (projectIdValue) {
+      const project = projects.find((p) => p._id === projectIdValue);
+      if (project) {
+        setSelectedProject(project);
+        setProjectMembers(project.members || []);
+      }
+    } else {
+      setProjectMembers([]);
+      setSelectedProject(null);
+    }
+  }, [projectIdValue, projects]);
+
   useEffect(() => {
     if (isOpen) {
       if (currentTask) {
@@ -43,23 +62,36 @@ export function TaskModal() {
           title: currentTask.title || "",
           description: currentTask.description || "",
           projectId: currentTask.projectId?._id || currentTask.projectId || "",
+          assignedTo:
+            currentTask.assignedTo?._id || currentTask.assignedTo || "",
           priority: currentTask.priority || TASK_PRIORITY.MEDIUM,
-          // format date to yyyy-MM-dd for the date input
           dueDate: currentTask.dueDate
             ? new Date(currentTask.dueDate).toISOString().split("T")[0]
             : "",
         });
+        // Set members for edit mode
+        if (currentTask.projectId) {
+          const project = projects.find(
+            (p) => p._id === currentTask.projectId._id,
+          );
+          if (project) {
+            setSelectedProject(project);
+            setProjectMembers(project.members || []);
+          }
+        }
       } else {
         reset({
           title: "",
           description: "",
           projectId: "",
+          assignedTo: "",
           priority: TASK_PRIORITY.MEDIUM,
           dueDate: "",
         });
+        setProjectMembers([]);
       }
     }
-  }, [isOpen, currentTask, reset]);
+  }, [isOpen, currentTask, reset, projects]);
 
   const onSubmit = async (data) => {
     try {
@@ -91,7 +123,7 @@ export function TaskModal() {
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={currentTask ? "Edit Task" : "Create New Task"} 
+      title={currentTask ? "Edit Task" : "Create New Task"}
       size="md"
       footer={
         <>
@@ -103,8 +135,7 @@ export function TaskModal() {
             onClick={handleSubmit(onSubmit)}
             loading={loading}
           >
-            {currentTask ? "Update" : "Create"}{" "}
-         
+            {currentTask ? "Update" : "Create"}
           </Button>
         </>
       }
@@ -145,7 +176,7 @@ export function TaskModal() {
 
         {/* Project */}
         <div>
-          <label className="form-label">Project</label>
+          <label className="form-label">Project *</label>
           <select
             className="input-field"
             {...register("projectId", {
@@ -163,6 +194,24 @@ export function TaskModal() {
             <p className="error-message">{errors.projectId.message}</p>
           )}
         </div>
+
+        {/* Assign Member (Dynamic based on project) */}
+        {projectMembers.length > 0 && (
+          <div>
+            <label className="form-label flex items-center gap-2">
+              <Users size={16} />
+              Assign Member
+            </label>
+            <select className="input-field" {...register("assignedTo")}>
+              <option value="">Select a member</option>
+              {projectMembers.map((member) => (
+                <option key={member._id} value={member._id}>
+                  {member.name} ({member.email})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Priority */}
         <div>

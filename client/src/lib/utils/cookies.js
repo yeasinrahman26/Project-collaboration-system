@@ -1,7 +1,11 @@
 import Cookies from "js-cookie";
 
 export const setAuthToken = (token) => {
-  Cookies.set("token", token, { expires: 7 });
+  Cookies.set("token", token, {
+    expires: 7,
+    secure: false, // Change to true in production
+    sameSite: "lax",
+  });
 };
 
 export const getAuthToken = () => {

@@ -114,3 +114,65 @@ exports.getProfile = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+// Update User (Admin only, or user updating themselves)
+exports.updateUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { name, email, role, profilePicture } = req.body;
+
+    // Check if user is Admin or updating their own profile
+   if (req.user.role !== "Admin" && req.user.id.toString() !== userId) {
+     return res.status(403).json({ message: "Cannot update other users" });
+   }
+
+    // Prevent non-admins from changing role
+    if (req.user.role !== "Admin" && role) {
+      return res.status(403).json({ message: "Only admins can change roles" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { name, email, role, profilePicture },
+      { new: true, runValidators: true },
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ message: "User updated successfully", user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Delete User (Admin only)
+exports.deleteUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const deletedUser = await User.findByIdAndDelete(userId);
+
+    if (!deletedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ message: "User deleted successfully", user: deletedUser });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+// Get all users (Admin only)
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+    
+    res.json({
+      message: "All users retrieved",
+      users,
+      count: users.length
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

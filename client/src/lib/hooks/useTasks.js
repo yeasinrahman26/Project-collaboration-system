@@ -38,6 +38,8 @@ export const useTasks = () => {
     assignedTo: tasksState.filters.assignedTo,
     sort: tasksState.filters.sort,
     page: tasksState.filters.page,
+    myTasks: tasksState.filters.myTasks || false,
+    search: tasksState.filters.search || "", // NEW
   });
 
   const { data: highPriorityTasks } = useGetHighPriorityTasksQuery();

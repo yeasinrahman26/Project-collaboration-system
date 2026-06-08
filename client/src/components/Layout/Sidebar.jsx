@@ -12,9 +12,9 @@ import {
   LayoutDashboard,
   FolderOpen,
   CheckSquare,
-  Search,
   LogOut,
   User,
+  Plus,
 } from "lucide-react";
 
 export function Sidebar() {
@@ -24,28 +24,44 @@ export function Sidebar() {
   const { user, logout } = useAuth();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
+  // Define menu items with required roles
   const navItems = [
     {
       label: "Dashboard",
       href: "/dashboard",
       icon: LayoutDashboard,
+      roles: ["Admin", "ProjectManager", "TeamMember"],
     },
     {
       label: "Projects",
       href: "/dashboard/projects",
       icon: FolderOpen,
+      roles: ["Admin", "ProjectManager"],
     },
     {
       label: "Tasks",
       href: "/dashboard/tasks",
       icon: CheckSquare,
+      roles: ["Admin", "ProjectManager", "TeamMember"],
     },
+    // {
+    //   label: "Add Task", // NEW
+    //   href: "/dashboard/addTask", // NEW
+    //   icon: Plus,
+    //   roles: ["Admin", "ProjectManager"],
+    // },
     {
-      label: "Search",
-      href: "/dashboard/search",
-      icon: Search,
+      label: "Users",
+      href: "/dashboard/users",
+      icon: User,
+      roles: ["Admin"],
     },
   ];
+
+  // Filter items based on user role
+  const filteredNavItems = navItems.filter((item) =>
+    item.roles.includes(user?.role),
+  );
 
   const isActive = (href) => pathname === href;
 
@@ -82,17 +98,17 @@ export function Sidebar() {
           <div className="mb-8 mt-12 md:mt-0">
             <Link href="/dashboard" className="flex items-center gap-2">
               <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">PC</span>
+                <span className="text-white font-bold text-lg">TF</span>
               </div>
               <span className="font-bold text-xl text-gray-900 dark:text-white hidden sm:inline">
-                Project Co.
+                Taskforge
               </span>
             </Link>
           </div>
 
           {/* Navigation */}
           <nav className="flex-1 space-y-2">
-            {navItems.map((item) => {
+            {filteredNavItems.map((item) => {
               const Icon = item.icon;
               const active = isActive(item.href);
 

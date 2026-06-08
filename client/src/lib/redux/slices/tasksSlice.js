@@ -12,6 +12,7 @@ const initialState = {
     assignedTo: "",
     sort: "createdAt",
     page: 1,
+    search: "", // NEW
   },
   pagination: {
     page: 1,
